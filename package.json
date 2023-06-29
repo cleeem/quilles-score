@@ -1,8 +1,8 @@
 {
   "name": "com.clem.quilles",
-  "displayName": "Quilles",
+  "displayName": "Score Quilles",
   "version": "1.0.0",
-  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "description": "Application pout noter des scores de quilles de huit",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
