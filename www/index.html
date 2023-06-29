@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, please refer to the docs:
+            https://cordova.apache.org/docs/en/latest/
+        Some notes:
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <!-- <meta name="color-scheme" content="light dark"> -->
+        <!-- <link rel="stylesheet" href="css/index.css"> -->
+
+        <link rel="stylesheet" href="./css/component.css">
+        <link rel="stylesheet" href="./css/container.css">
+
+        <title>Quilles de Huit Score</title>
+    </head>
+    <body>
+        <div class="main-grid">    
+            <div class="player-container" id="playerContainer">  
+                <div class="player-info" id="gameDisplay">
+                </div>
+                
+                <div class="player-render" id="playerRender">
+                </div>
+                    
+                <div class="menu">
+                    <select class="userInput" id="playerCount">
+                        <option value="1">1 joueur</option>
+                        <option value="2">2 joueurs</option>
+                        <option value="3">3 joueurs</option>
+                        <option value="4">4 joueurs</option>
+                        <option value="5">5 joueurs</option>
+        
+                    </select>
+                    <select class="userInput" id="gameCount">
+                        <option value="1">1 partie</option>
+                        <option value="2">2 parties</option>
+                        <option value="3">3 parties</option>
+                        <option value="4">4 parties</option>
+        
+                    </select>
+    
+                    <button class="score-button" id="submitButton">
+                        OK
+                    </button>
+                </div>
+        
+    
+            </div>
+    
+            <div class="gap"> 
+                <img src="./img/arrow.png" alt="next game" id="leftArrow">
+            </div>
+    
+            <div class="score-container">
+    
+                <div class="distances-container" id="distancesContainer">
+                </div>
+    
+                <div class="game-container" id="gameContainer">
+                    
+                </div>
+        
+                <div class="buttons-container" id="buttonsContainer">
+                    
+                </div>
+            </div>
+    
+            <div class="gap">
+                <img src="./img/arrow.png" alt="next game" id="rightArrow">
+            </div>
+    
+        </div>
+        <script src="cordova.js"></script>
+        <script src="js/index.js"></script>
+    </body>
+</html>
