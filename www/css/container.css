@@ -40,13 +40,29 @@
 
 }
 
-.menu {
+.button-menu {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 3px;
 
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+
+    font-size: 15px;
+}
+
+.parameters-section {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    text-align: center;
 }
 
 .distances-container {
@@ -86,5 +102,6 @@
 .result {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
 }
+

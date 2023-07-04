@@ -1,14 +1,21 @@
 const DISTANCES = [1, 5 ,5 ,10 ,10 ,10 ,15 ,15, 20, "T"];
 const BUTTONS   = ["X", 1, 2, 3, 4, 5, 6, 7, 8, 9, " "]
-
+const TARGET_SCORE = [4, 7, 7, 6, 6, 6, 5, 5, 4];
 
 let confirmButton;
 let optPlayer;
 let optGames;
+let parametersButton;
 
 let currentGameIndex = 0;
 let currentPlayerIndex = 0;
 let currentDistanceIndex = 0;
+
+let strokesCount = 0;
+let finishedGameCount = 0;
+
+let playerCount = 0;
+let gameCount = 0;
 
 let gameData;
 
@@ -16,6 +23,8 @@ let buttonPreviousGame;
 let buttonNextGame;
 
 let continueGame = true;
+let colorDistance = false;
+let showingMenu = false;
 
 let playerScores = [];  
 
@@ -29,12 +38,14 @@ function onDeviceReady() {
     optPlayer = document.getElementById("playerCount");
     optGames = document.getElementById("gameCount");
     confirmButton.addEventListener("click", confirmInput);
+    parametersButton = document.getElementById("parameters");
 
 
     buttonPreviousGame = document.getElementById("leftArrow");
     buttonNextGame = document.getElementById("rightArrow");
     buttonPreviousGame.addEventListener("click", previousGame);
     buttonNextGame.addEventListener("click", nextGame);
+    parametersButton.addEventListener("click", showMenu);
 
     firstDisplay();
 }
@@ -43,6 +54,123 @@ function onDeviceReady() {
 function firstDisplay() {   
     createDistances();
     createAndBindButtons();
+    showMenu();
+}
+
+function showMenu() {
+    let container = document.getElementById("gameContainer");
+    if (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+    let newDiv = document.createElement("div");
+    newDiv.id = "paramMenu";
+    newDiv.className = "menu";
+    newDiv.style.backgroundColor = "gray";
+    newDiv.style.border = "solid black 1px";
+
+    let title = document.createTextNode("Parametres");
+    newDiv.appendChild(title);
+
+
+    let playerDiv = document.createElement("div");
+    playerDiv.className = "parameters-section";
+    let textPlayer = document.createElement("div");
+    textPlayer.innerHTML = "Nombre de joueurs";
+    playerDiv.appendChild(textPlayer);
+
+    let playerInputDiv = document.createElement("div");
+    let playerInput = document.createElement("select");
+    for (let i = 1; i <= 5; i++) {
+        let text = i == 1 ? " joueur" : " joueurs";
+        let option = document.createElement("option");
+        option.value = i;
+        option.text = i + text;
+        playerInput.add(option);
+    }
+    playerInput.id = "playerCount";
+    playerInputDiv.appendChild(playerInput).className = "userInput";
+    playerDiv.appendChild(playerInputDiv);
+    newDiv.appendChild(playerDiv);
+    
+
+    let gameDiv = document.createElement("div");
+    gameDiv.className = "parameters-section";
+    let textGame = document.createElement("div");
+    textGame.innerHTML = "Nombre de parties";
+    gameDiv.appendChild(textGame);
+
+    let gameInputDiv = document.createElement("div");
+    let gameInput = document.createElement("select");
+    for (let i = 1; i <= 4; i++) {
+        let text = i == 1 ? " partie" : " parties";
+        let option = document.createElement("option");
+        option.value = i;
+        option.text = i + text;
+        gameInput.add(option);
+    }
+    gameInput.id = "gameCount";
+    gameInputDiv.appendChild(gameInput).className = "userInput";
+    gameDiv.appendChild(gameInputDiv);
+    newDiv.appendChild(gameDiv);
+
+
+    let targetCountDiv = document.createElement("div");
+    targetCountDiv.classList .add("parameters-section")
+
+    let text = document.createElement("div");
+    text.innerHTML = "Différence avec 50 (par distances)";
+    targetCountDiv.appendChild(text);
+
+    targetCountDiv.innerHTML += 
+    " \
+    <label class='toggle'> \
+    <input class='toggle-checkbox' type='checkbox' id='colorDistance'> \
+    <div class='toggle-switch'></div> \
+    </label> \
+    ";
+
+    newDiv.appendChild(targetCountDiv);
+
+    let infos1 = document.createElement("div");
+    infos1.innerHTML = "Cliquez sur confirmer pour lancer les parties"
+    newDiv.appendChild(infos1);
+
+    let infos2 = document.createElement("div");
+    infos2.innerHTML = "Note : si une partie est en cours, elle sera perdue"
+    newDiv.appendChild(infos2);
+
+    let buttonClear = document.createElement("button");
+    buttonClear.id = "buttonClear";
+    buttonClear.innerHTML = "Effacer"
+    buttonClear.addEventListener("click", clear);
+
+    newDiv.appendChild(buttonClear);
+
+    let buttonBack = document.createElement("button");
+    buttonBack.id = "buttonBack";
+    buttonBack.innerHTML = "Retour"
+    buttonBack.addEventListener("click", backToGame);
+
+    newDiv.appendChild(buttonBack);
+
+    container.appendChild(newDiv);
+    showingMenu = true;
+}
+
+function clear() {
+    resetIndex();
+    confirmInput();
+}
+
+function backToGame() {
+    let container = document.getElementById("gameContainer");
+    container.removeChild(container.firstChild);
+    showMenu = false;
+    if (gameData[currentGameIndex] != undefined) {
+        container.appendChild(gameData[currentGameIndex]);
+    } else if (document.getElementById("gameDisplay").innerHTML == "RESULTATS") {
+        completeResults();
+    }
 }
 
 function createDistances() {
@@ -108,6 +236,12 @@ function updateDistanceScores() {
     let scoreCell = document.getElementById(scoreCellID);
     scoreCell.innerHTML = score;
     scoreCell.value = score;
+    if (colorDistance) {
+        scoreCell.style.backgroundColor = 
+            score < (TARGET_SCORE[currentDistanceIndex] * getPlayerNumber())
+            ? "#ff6d6d"
+            : "#39ae37";
+    }
 }
 
 function updatePlayerScore() {
@@ -139,6 +273,11 @@ function updateGameScore() {
 }
 
 function updateCellToNext() {
+    strokesCount++;
+
+    if (strokesCount % (getPlayerNumber() * 9) == 0 && finishedGameCount < getGameNumber()) {
+        finishedGameCount++;
+    }
 
     if (currentPlayerIndex == getPlayerNumber() - 1) {
         currentPlayerIndex = 0;
@@ -205,6 +344,15 @@ function switchToNextGamePage() {
 }
 
 function confirmInput() {
+    playerCount = document.getElementById("playerCount").value;
+    gameCount = document.getElementById("gameCount").value;
+    colorDistance = document.getElementById("colorDistance").checked;
+
+    if (showingMenu) {
+        let container = document.getElementById("gameContainer");
+        container.removeChild(container.firstChild);
+        showingMenu = false;
+    }
     continueGame = true;
     playerScores = [];
     resetIndex();
@@ -219,6 +367,9 @@ function resetIndex() {
     currentGameIndex = 0;
     currentPlayerIndex = 0;
     currentDistanceIndex = 0;
+    finishedGameCount = 0;
+    strokesCount = 0;
+    gameData = [];
 }
 
 function createPlayerNameInput() {
@@ -348,19 +499,17 @@ function toogleBlink(cell) {
 }
 
 function getPlayerNumber() {
-    let selectedValue = optPlayer.options[optPlayer.selectedIndex].value;
-    return selectedValue;
+    return playerCount;
 }
 
 function getGameNumber() {
-    let selectedValue = optGames.options[optGames.selectedIndex].value;
-    return selectedValue;
+    return gameCount;
 }
 
 function previousGame() {
     if (currentGameIndex > 0) {   
         enable("button1");
-        enable("button9");
+        disbale("button9");
         try {
             let oldCellID = "cell" + currentGameIndex + currentPlayerIndex + currentDistanceIndex;
             let oldCell = document.getElementById(oldCellID);
@@ -374,6 +523,9 @@ function previousGame() {
 
         currentDistanceIndex = 0;
         currentPlayerIndex = 0;
+
+        continueGame = true;
+
 
         let container = document.getElementById("gameContainer");
         container.removeChild(container.firstChild);
@@ -389,7 +541,7 @@ function previousGame() {
 function nextGame() {
     if (currentGameIndex < getGameNumber() ) {
         enable("button1");
-        enable("button9");
+        disbale("button9");
 
         let oldCellID = "cell" + currentGameIndex + currentPlayerIndex + currentDistanceIndex;
         let oldCell = document.getElementById(oldCellID);
@@ -423,9 +575,10 @@ function completeResults() {
     let result = document.createElement("div");
     
     let exampleData = ["Nom du joueur", 
-                       "Score (sur {n} parties)"
-                       .replace("{n}", getGameNumber()),
-                       "Moyenne"];
+                       "Score ({n} parties)"
+                       .replace("{n}", finishedGameCount),
+                       "Moyenne({n} parties)"
+                       .replace("{n}", finishedGameCount)];
 
     for (let message of exampleData) {
         let div = document.createElement("div");
@@ -440,7 +593,7 @@ function completeResults() {
         let name = document.getElementById("input" + index).value;
         
         if (name == "") {
-            name = "Joueur " + index;
+            name = "Joueur " + (index+1);
         }
         
         playerData.push(name);
@@ -452,8 +605,12 @@ function completeResults() {
 
         teamScore += score;
 
-        let average = (score / getGameNumber()).toFixed(3);
-        playerData.push(average);
+        if (finishedGameCount != 0) {
+            let average = (score / finishedGameCount).toFixed(3);
+            playerData.push(average);
+        } else {
+            playerData.push(0.000);
+        }
         
         for (let elt of playerData) {
             let div = document.createElement("div");
@@ -466,7 +623,11 @@ function completeResults() {
 
     teamData.push(teamScore);
 
-    teamData.push((teamScore / getGameNumber()).toFixed(3));
+    if (finishedGameCount != 0) {
+        teamData.push((teamScore / finishedGameCount).toFixed(3));
+    } else {
+        teamData.push(0.000);
+    }
 
     for (let message of teamData) {
         let div = document.createElement("div");
@@ -477,7 +638,12 @@ function completeResults() {
     result.className = "result";
 
     let container = document.getElementById("gameContainer");
-    container.removeChild(container.firstChild);
+    if (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
     container.appendChild(result);
     
+    let display = document.getElementById("gameDisplay");
+    display.innerHTML = "RESULTATS";
+
 }
