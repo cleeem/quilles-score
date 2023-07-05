@@ -30,14 +30,30 @@
     font-size: 20px;
 }
 
+.distance-score-cell, .player-score-cell,
+.final-score-cell {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    grid-template-rows: 33% 33% 33%;
+    text-align: center;
+}
+
+.center {
+    grid-column: 2/3;
+    grid-row: 2/3;
+}
 
 .distance-score-cell {
-    background-color: #8EF9F3;
-    
+    background-color: #8EF9F3;    
 }
+
 .player-score-cell {
     background-color: #C2F9BB;
+    
 }
+
 .final-score-cell {
     background-color: #F17F29;
 }
@@ -49,6 +65,24 @@
     width: 100%;
     height: 100%;
     font-size: 15px;
+}
+
+.main-score {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    grid-row: 1 / 3;
+    grid-column: 1 / 3;
+    font-size: 15px;
+}
+
+.sub-score {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    grid-row: 3 / 3;
+    grid-column: 3 / 3;
+    font-size: 10px;
 }
 
 .score-button {
@@ -110,11 +144,8 @@
 }
 
 
-#buttonBack, #buttonClear {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 50%;
+#buttonBack {
+    width: 25%;
     height: 10%;
-    font-size: 15x;
+    font-size: 25px;
 }

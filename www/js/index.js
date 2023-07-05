@@ -2,6 +2,9 @@ const DISTANCES = [1, 5 ,5 ,10 ,10 ,10 ,15 ,15, 20, "T"];
 const BUTTONS   = ["X", 1, 2, 3, 4, 5, 6, 7, 8, 9, " "]
 const TARGET_SCORE = [4, 7, 7, 6, 6, 6, 5, 5, 4];
 
+const GREEN_COLOR = "#5eb35c"
+const RED_COLOR   = "#ff6d6d"
+
 let confirmButton;
 let optPlayer;
 let optGames;
@@ -115,10 +118,10 @@ function showMenu() {
 
 
     let targetCountDiv = document.createElement("div");
-    targetCountDiv.classList .add("parameters-section")
+    targetCountDiv.classList.add("parameters-section")
 
     let text = document.createElement("div");
-    text.innerHTML = "Différence avec 50 (par distances)";
+    text.innerHTML = "Objectif 50";
     targetCountDiv.appendChild(text);
 
     targetCountDiv.innerHTML += 
@@ -213,7 +216,6 @@ function addValue() {
         currentCell.value = buttonValue;
 
         
-        
         if (!this.innerHTML.includes("&nbsp;")) {
             toogleBlink(currentCell);
             updateDistanceScores();
@@ -234,13 +236,36 @@ function updateDistanceScores() {
 
     let scoreCellID = "distanceScore" + currentGameIndex + currentDistanceIndex;
     let scoreCell = document.getElementById(scoreCellID);
-    scoreCell.innerHTML = score;
     scoreCell.value = score;
-    if (colorDistance) {
-        scoreCell.style.backgroundColor = 
-            score < (TARGET_SCORE[currentDistanceIndex] * getPlayerNumber())
-            ? "#ff6d6d"
-            : "#39ae37";
+
+    let newMainScore = document.createElement("div");
+    newMainScore.innerHTML = score;
+
+    while (scoreCell.firstChild) {
+        scoreCell.removeChild(scoreCell.firstChild);
+    }
+
+    if (!colorDistance) {
+        scoreCell.appendChild(newMainScore).className = "center";
+
+    } else {
+        let newSubScore = document.createElement("div");
+        let scoreDiff;
+        let targetSum = (TARGET_SCORE[currentDistanceIndex] * (currentPlayerIndex + 1));
+        
+        scoreCell.appendChild(newMainScore).className = "main-score";
+
+        if (score < targetSum) {
+            scoreCell.style.backgroundColor = RED_COLOR;
+            scoreDiff = "-" + (targetSum - score);
+
+        } else {
+            scoreCell.style.backgroundColor = GREEN_COLOR;
+
+            scoreDiff = "+" + (score - targetSum);
+        }
+        newSubScore.innerHTML = scoreDiff;
+        scoreCell.appendChild(newSubScore).className = "sub-score";
     }
 }
 
@@ -253,9 +278,41 @@ function updatePlayerScore() {
     }
     let scoreCellID = "cellScore" + currentGameIndex + currentPlayerIndex;
     let cell = document.getElementById(scoreCellID);
-    cell.innerHTML = score;
     cell.value = score;
+
+    let newMainScore = document.createElement("div");
+    newMainScore.innerHTML = score;
+
     playerScores[currentGameIndex][currentPlayerIndex] = score;
+
+    while (cell.firstChild) {
+        cell.removeChild(cell.firstChild);
+    }
+
+    if (!colorDistance) {
+        cell.appendChild(newMainScore).className = "center";
+
+    } else {
+        cell.appendChild(newMainScore).className = "main-score";
+        
+        let targetSum = 0;
+        for (let i = 0; i <= currentDistanceIndex; i++) {
+            targetSum += TARGET_SCORE[i];
+        }
+        
+        let scoreDiff = score < targetSum
+                     ? "-" + (targetSum - score)
+                     : "+" + (score - targetSum);
+        
+        let newSubScore = document.createElement("div");
+        newSubScore.innerHTML = scoreDiff;
+        cell.appendChild(newSubScore).className = "sub-score";
+        
+        cell.style.backgroundColor = 
+            score < targetSum
+            ? RED_COLOR
+            : GREEN_COLOR;
+    }
 }
 
 function updateGameScore() {
@@ -268,8 +325,41 @@ function updateGameScore() {
     }
 
     let cell = document.getElementById("finalGameCell" + currentGameIndex);
-    cell.innerHTML = score;
     cell.value = score;
+    
+    let newMainScore = document.createElement("div");
+    newMainScore.innerHTML = score;
+
+    while (cell.firstChild) {
+        cell.removeChild(cell.firstChild);
+    }
+
+    if (!colorDistance) {
+        cell.appendChild(newMainScore).className = "center";
+    } else {
+        let scoreDiff;
+        let newSubScore = document.createElement("div");
+        
+        let targetSum = 0;
+        for (let i = 0; i <= currentDistanceIndex; i++) {
+            targetSum += (TARGET_SCORE[i] * getPlayerNumber());
+        }
+        
+        cell.appendChild(newMainScore).className = "main-score";
+
+        if (score < targetSum) {
+            cell.style.backgroundColor = RED_COLOR;
+            scoreDiff = "-" + (targetSum - score);
+
+        } else {
+            cell.style.backgroundColor = GREEN_COLOR;
+
+            scoreDiff = "+" + (score - targetSum);
+        }
+        newSubScore.innerHTML = scoreDiff;
+        cell.appendChild(newSubScore).className = "sub-score";
+    }
+
 }
 
 function updateCellToNext() {
@@ -340,7 +430,6 @@ function switchToNextGamePage() {
 
     let display = document.getElementById("gameDisplay");
     display.innerHTML = "Partie " + (currentGameIndex+1) + " / " + getGameNumber();
-
 }
 
 function confirmInput() {
@@ -574,11 +663,19 @@ function nextGame() {
 function completeResults() {
     let result = document.createElement("div");
     
-    let exampleData = ["Nom du joueur", 
-                       "Score ({n} parties)"
-                       .replace("{n}", finishedGameCount),
-                       "Moyenne({n} parties)"
-                       .replace("{n}", finishedGameCount)];
+    let gameText = finishedGameCount < 2
+                 ? "partie"
+                 : "parties";
+
+    let exampleData = [
+        "Nom du joueur", 
+        "Score ({n} {text})"
+            .replace("{text}", gameText)
+            .replace("{n}", finishedGameCount),
+        "Moyenne({n} {text})"
+            .replace("{text}", gameText)
+            .replace("{n}", finishedGameCount)
+    ];
 
     for (let message of exampleData) {
         let div = document.createElement("div");
