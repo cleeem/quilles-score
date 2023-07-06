@@ -2,8 +2,9 @@ const DISTANCES = [1, 5 ,5 ,10 ,10 ,10 ,15 ,15, 20, "T"];
 const BUTTONS   = ["X", 1, 2, 3, 4, 5, 6, 7, 8, 9, " "]
 const TARGET_SCORE = [4, 7, 7, 6, 6, 6, 5, 5, 4];
 
-const GREEN_COLOR = "#5eb35c"
-const RED_COLOR   = "#ff6d6d"
+const GREEN_COLOR = "#5eb35c";
+const RED_COLOR   = "#ff6d6d";
+const BLUE_COLOR  = "#8EF9F3";
 
 let confirmButton;
 let optPlayer;
@@ -68,8 +69,6 @@ function showMenu() {
     let newDiv = document.createElement("div");
     newDiv.id = "paramMenu";
     newDiv.className = "menu";
-    newDiv.style.backgroundColor = "gray";
-    newDiv.style.border = "solid black 1px";
 
     let title = document.createTextNode("Parametres");
     newDiv.appendChild(title);
@@ -116,24 +115,6 @@ function showMenu() {
     gameDiv.appendChild(gameInputDiv);
     newDiv.appendChild(gameDiv);
 
-
-    let targetCountDiv = document.createElement("div");
-    targetCountDiv.classList.add("parameters-section")
-
-    let text = document.createElement("div");
-    text.innerHTML = "Objectif 50";
-    targetCountDiv.appendChild(text);
-
-    targetCountDiv.innerHTML += 
-    " \
-    <label class='toggle'> \
-    <input class='toggle-checkbox' type='checkbox' id='colorDistance'> \
-    <div class='toggle-switch'></div> \
-    </label> \
-    ";
-
-    newDiv.appendChild(targetCountDiv);
-
     let infos1 = document.createElement("div");
     infos1.innerHTML = "Cliquez sur confirmer pour lancer les parties"
     newDiv.appendChild(infos1);
@@ -157,6 +138,10 @@ function showMenu() {
     newDiv.appendChild(buttonBack);
 
     container.appendChild(newDiv);
+    
+    let switch50 = document.getElementById("colorDistance");
+    switch50.addEventListener("change", toogleDistanceColor)
+
     showingMenu = true;
 }
 
@@ -245,28 +230,9 @@ function updateDistanceScores() {
         scoreCell.removeChild(scoreCell.firstChild);
     }
 
-    if (!colorDistance) {
-        scoreCell.appendChild(newMainScore).className = "center";
+    colorDistanceCell(scoreCell, newMainScore, score);
 
-    } else {
-        let newSubScore = document.createElement("div");
-        let scoreDiff;
-        let targetSum = (TARGET_SCORE[currentDistanceIndex] * (currentPlayerIndex + 1));
-        
-        scoreCell.appendChild(newMainScore).className = "main-score";
-
-        if (score < targetSum) {
-            scoreCell.style.backgroundColor = RED_COLOR;
-            scoreDiff = "-" + (targetSum - score);
-
-        } else {
-            scoreCell.style.backgroundColor = GREEN_COLOR;
-
-            scoreDiff = "+" + (score - targetSum);
-        }
-        newSubScore.innerHTML = scoreDiff;
-        scoreCell.appendChild(newSubScore).className = "sub-score";
-    }
+    
 }
 
 function updatePlayerScore() {
@@ -289,8 +255,62 @@ function updatePlayerScore() {
         cell.removeChild(cell.firstChild);
     }
 
+    colorPlayerCell(cell, newMainScore, score);
+}
+
+function updateGameScore() {
+    let score = 0;
+
+    for (let i = 0; i < getPlayerNumber(); i++) {
+        let cellID = "cellScore" + currentGameIndex + i;
+        let cell = document.getElementById(cellID);
+        score += parseInt(cell.value);
+    }
+
+    let cell = document.getElementById("finalGameCell" + currentGameIndex);
+    cell.value = score;
+    
+    let newMainScore = document.createElement("div");
+    newMainScore.innerHTML = score;
+
+    while (cell.firstChild) {
+        cell.removeChild(cell.firstChild);
+    }
+
+    colorGameScoreCell(cell, newMainScore, score);
+
+}
+
+function colorDistanceCell(cell, newMainScore, score) {
     if (!colorDistance) {
         cell.appendChild(newMainScore).className = "center";
+        cell.style.backgroundColor = BLUE_COLOR;
+
+    } else {
+        let newSubScore = document.createElement("div");
+        let scoreDiff;
+        let targetSum = (TARGET_SCORE[currentDistanceIndex] * (currentPlayerIndex + 1));
+        
+        cell.appendChild(newMainScore).className = "main-score";
+
+        if (score < targetSum) {
+            cell.style.backgroundColor = RED_COLOR;
+            scoreDiff = "-" + (targetSum - score);
+
+        } else {
+            cell.style.backgroundColor = GREEN_COLOR;
+
+            scoreDiff = "+" + (score - targetSum);
+        }
+        newSubScore.innerHTML = scoreDiff;
+        cell.appendChild(newSubScore).className = "sub-score";
+    }
+}
+
+function colorPlayerCell(cell, newMainScore, score) {
+    if (!colorDistance) {
+        cell.appendChild(newMainScore).className = "center";
+        cell.style.backgroundColor = BLUE_COLOR;
 
     } else {
         cell.appendChild(newMainScore).className = "main-score";
@@ -315,27 +335,10 @@ function updatePlayerScore() {
     }
 }
 
-function updateGameScore() {
-    let score = 0;
-
-    for (let i = 0; i < getPlayerNumber(); i++) {
-        let cellID = "cellScore" + currentGameIndex + i;
-        let cell = document.getElementById(cellID);
-        score += parseInt(cell.value);
-    }
-
-    let cell = document.getElementById("finalGameCell" + currentGameIndex);
-    cell.value = score;
-    
-    let newMainScore = document.createElement("div");
-    newMainScore.innerHTML = score;
-
-    while (cell.firstChild) {
-        cell.removeChild(cell.firstChild);
-    }
-
+function colorGameScoreCell(cell, newMainScore, score) {
     if (!colorDistance) {
         cell.appendChild(newMainScore).className = "center";
+        cell.style.backgroundColor = BLUE_COLOR;
     } else {
         let scoreDiff;
         let newSubScore = document.createElement("div");
@@ -359,7 +362,6 @@ function updateGameScore() {
         newSubScore.innerHTML = scoreDiff;
         cell.appendChild(newSubScore).className = "sub-score";
     }
-
 }
 
 function updateCellToNext() {
@@ -432,10 +434,80 @@ function switchToNextGamePage() {
     display.innerHTML = "Partie " + (currentGameIndex+1) + " / " + getGameNumber();
 }
 
+function toogleDistanceColor() {
+    console.log("bonsoir");
+    colorDistance = !colorDistance;
+    if (!showingMenu) {
+        changeDistanceCellColor();
+        changePlayerCellColor();
+        changeGameScoreCellColor();
+    }
+}
+
+function changeDistanceCellColor() {
+    for (let distanceIndex = 0; distanceIndex < currentDistanceIndex; distanceIndex++) {
+        let distanceScore = 0;
+        for (let player = 0; player < getPlayerNumber(); player++) {
+            let cellID = "cell" + currentGameIndex + player + distanceIndex;
+            let cell = document.getElementById(cellID);
+            distanceScore += parseInt(cell.value); 
+        }
+        let newMainScore = document.createElement("div");
+        newMainScore.innerHTML = distanceScore;
+        
+        let cellID = "distanceScore" + currentGameIndex + distanceIndex;
+        let cell = document.getElementById(cellID);
+        
+        while (cell.firstChild) {
+            cell.removeChild(cell.firstChild);
+        }
+        colorDistanceCell(cell, newMainScore, distanceScore);
+    }
+}
+
+function changePlayerCellColor() {
+    for (let playerIndex = 0; playerIndex < getPlayerNumber(); playerIndex++) {
+        let playerScore = 0;
+        for (let dist = 0; dist < currentDistanceIndex; dist++) {
+            let cellID = "cell" + currentGameIndex + playerIndex + dist;
+            let cell = document.getElementById(cellID);
+            console.log(cellID);
+            playerScore += parseInt(cell.value); 
+        }
+        let newMainScore = document.createElement("div");
+        newMainScore.innerHTML = playerScore;
+        
+        let cellID = "cellScore" + currentGameIndex + playerIndex;
+        let cell = document.getElementById(cellID);
+        
+        while (cell.firstChild) {
+            cell.removeChild(cell.firstChild);
+        }
+        colorPlayerCell(cell, newMainScore, playerScore);
+    }
+}
+
+function changeGameScoreCellColor() {
+    let gameScore = 0;
+    for (let playerIndex = 0; playerIndex < getPlayerNumber(); playerIndex++) {
+        let cellID = "cellScore" + currentGameIndex + playerIndex;
+        let cell = document.getElementById(cellID);
+        gameScore += parseInt(cell.value);
+    }
+    let newMainScore = document.createElement("div");
+    newMainScore.innerHTML = gameScore;
+
+    let cell = document.getElementById("finalGameCell" + currentGameIndex);
+
+    while (cell.firstChild) {
+        cell.removeChild(cell.firstChild);
+    }
+    colorPlayerCell(cell, newMainScore, gameScore);
+}
+
 function confirmInput() {
     playerCount = document.getElementById("playerCount").value;
     gameCount = document.getElementById("gameCount").value;
-    colorDistance = document.getElementById("colorDistance").checked;
 
     if (showingMenu) {
         let container = document.getElementById("gameContainer");
@@ -502,14 +574,8 @@ function createScoreGrid() {
         for (let j = 0; j < getPlayerNumber(); j++) {
             temp.push(0);
 
-            for (let index = 0; index < 9; index++) {
-                let cell = document.createElement("div");
-                cell.innerHTML = "&nbsp;";
-                cell.id = "cell" + gameIndex + j + index;
-                cell.value = 0;
-                cell.addEventListener("click", setThisToCurrentCell);
-                div.appendChild(cell).className = "cell";        
-            }
+            createCell(div, gameIndex, j);
+
             let cell = document.createElement("div");
             cell.innerHTML = "&nbsp;";
             cell.id = "cellScore" + gameIndex + j 
@@ -519,13 +585,7 @@ function createScoreGrid() {
 
         playerScores.push(temp);
 
-        for (let index = 0; index < 9; index++) {
-            let cell = document.createElement("div");
-            cell.innerHTML = "&nbsp;";
-            cell.id = "distanceScore" + gameIndex + index;
-            cell.value = 0;
-            div.appendChild(cell).className = "distance-score-cell";        
-        }
+        createDistanceCell(div, gameIndex);
 
         let cell = document.createElement("div");
         cell.innerHTML = "&nbsp;";
@@ -537,6 +597,27 @@ function createScoreGrid() {
     }
 
     container.appendChild(gameData[0]);
+}
+
+function createCell(div, gameIndex, j) {
+    for (let index = 0; index < 9; index++) {
+        let cell = document.createElement("div");
+        cell.innerHTML = "&nbsp;";
+        cell.id = "cell" + gameIndex + j + index;
+        cell.value = 0;
+        cell.addEventListener("click", setThisToCurrentCell);
+        div.appendChild(cell).className = "cell";        
+    }
+}
+
+function createDistanceCell(div, gameIndex) {
+    for (let index = 0; index < 9; index++) {
+        let cell = document.createElement("div");
+        cell.innerHTML = "&nbsp;";
+        cell.id = "distanceScore" + gameIndex + index;
+        cell.value = 0;
+        div.appendChild(cell).className = "distance-score-cell";        
+    }
 }
 
 function setThisToCurrentCell() {
@@ -663,26 +744,6 @@ function nextGame() {
 function completeResults() {
     let result = document.createElement("div");
     
-    let gameText = finishedGameCount < 2
-                 ? "partie"
-                 : "parties";
-
-    let exampleData = [
-        "Nom du joueur", 
-        "Score ({n} {text})"
-            .replace("{text}", gameText)
-            .replace("{n}", finishedGameCount),
-        "Moyenne({n} {text})"
-            .replace("{text}", gameText)
-            .replace("{n}", finishedGameCount)
-    ];
-
-    for (let message of exampleData) {
-        let div = document.createElement("div");
-        div.innerHTML = message;
-        result.appendChild(div).className = "recap-cell";
-    }    
-
     let teamScore = 0;
     
     for (let index = 0; index < getPlayerNumber(); index++) {
@@ -731,6 +792,26 @@ function completeResults() {
         div.innerHTML = message;
         result.appendChild(div).className = "recap-cell";
     } 
+
+    let gameText = finishedGameCount < 2
+                 ? "partie"
+                 : "parties";
+
+    let exampleData = [
+        "Nom du joueur", 
+        "Score ({n} {text})"
+            .replace("{text}", gameText)
+            .replace("{n}", finishedGameCount),
+        "Moyenne({n} {text})"
+            .replace("{text}", gameText)
+            .replace("{n}", finishedGameCount)
+    ];
+
+    for (let message of exampleData) {
+        let div = document.createElement("div");
+        div.innerHTML = message;
+        result.appendChild(div).className = "recap-cell";
+    }    
 
     result.className = "result";
 
